@@ -1,0 +1,45 @@
+課題1
+https://gyazo.com/537b3fa4b5e6558279803ca60411055c
+
+参考：https://zenn.dev/umi_mori/books/331c0c9ef9e5f0/viewer/110b8e
+
+概念モデル
+必要な情報の選定と管理すべき情報（エンティティと属性）と関係を整理したモデル
+ER図が該当
+
+論理モデルとは
+概念モデルをリレーショナルデータモデルで取り扱いやすいように詳細化したモデル
+→多対多の分解、キーの整理、正規化をしたもの
+
+物理モデルとは
+論理モデルをテーブルに落とし込むためにさらに詳細に表したモデル
+→物理名の決定、型・制約の決定、インデックスの決定
+
+このことを知るメリットは作業の順番が明確になること
+デザインパターンを知るという概念に近い
+
+今回では課題1のモデルを作成するときに概念モデルの作成をしないで、論理・物理モデルに作成をしてしまったので、図に抜け漏れが発生した
+
+課題2
+https://gyazo.com/580d4cc6a70f85d33f8c884757cccd66
+
+課題3
+◎takeoutとeat inで同じシステム（テーブル）を利用する
+
+課題4
+docker の参考 https://qiita.com/moaikids/items/f7c0db2c98425094ef10
+mysql のsql文の参考 https://qiita.com/ryosuketter/items/713c7046314ecdf1a4a9
+csvインポートの参考 https://taiga.hatenadiary.com/entry/2018/02/11/181715
+そのに https://agohack.com/import-csv-files-load-data-local-infile/
+権限エラーの参考 https://qiita.com/kiririri/items/81a828befc54e188d776
+
+お客さんが会計をする際の最終的な支払金額
+SELECT ord.id, sum(me.price) FROM praha_sushi.orders ord 
+  inner join praha_sushi.order_menus ord_me on ord.id = ord_me.order_id
+  inner join praha_sushi.menus me on me.id = ord_me.menu_id group by ord.id;
+
+お客さんの来店回数のランキング
+select ord.customer_id, cus.name, count(*) FROM praha_sushi.orders ord 
+  inner join praha_sushi.customers cus on ord.customer_id = cus.id 
+  group by ord.customer_id order by count(*) desc;
+

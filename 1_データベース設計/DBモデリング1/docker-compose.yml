@@ -1,0 +1,16 @@
+version: '3'
+services:
+  mysql:
+    build: ./mysql
+    container_name: mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+    ports:
+      - 3306:3306
+  phpmyadmin:
+    build: ./phpmyadmin
+    ports:
+      - 127.0.0.1:8080:80
