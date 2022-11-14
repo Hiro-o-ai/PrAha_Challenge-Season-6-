@@ -1,8 +1,7 @@
-課題1
+#課題1
 https://gyazo.com/537b3fa4b5e6558279803ca60411055c
 
-参考：https://zenn.dev/umi_mori/books/331c0c9ef9e5f0/viewer/110b8e
-
+#任意課題
 概念モデル
 必要な情報の選定と管理すべき情報（エンティティと属性）と関係を整理したモデル
 ER図が該当
@@ -16,30 +15,48 @@ ER図が該当
 →物理名の決定、型・制約の決定、インデックスの決定
 
 このことを知るメリットは作業の順番が明確になること
-デザインパターンを知るという概念に近い
 
-今回では課題1のモデルを作成するときに概念モデルの作成をしないで、論理・物理モデルに作成をしてしまったので、図に抜け漏れが発生した
+データモデルの分類の参考：https://zenn.dev/umi_mori/books/331c0c9ef9e5f0/viewer/110b8e
 
-課題2
+#課題2
 https://gyazo.com/580d4cc6a70f85d33f8c884757cccd66
 
-課題3
-◎takeoutとeat inで同じシステム（テーブル）を利用する
+#課題3
+条件
+1. takeoutとeat inで同じシステム（テーブル）を利用することになった場合
+2. 大カテゴリー、小カテゴリー、メニュー自体に変更があった場合
+https://gyazo.com/0e285a9262a8d9d02ad0b95238ae0440
 
-課題4
-docker の参考 https://qiita.com/moaikids/items/f7c0db2c98425094ef10
-mysql のsql文の参考 https://qiita.com/ryosuketter/items/713c7046314ecdf1a4a9
-csvインポートの参考 https://taiga.hatenadiary.com/entry/2018/02/11/181715
-そのに https://agohack.com/import-csv-files-load-data-local-infile/
-権限エラーの参考 https://qiita.com/kiririri/items/81a828befc54e188d776
-
+#課題4
 お客さんが会計をする際の最終的な支払金額
 SELECT ord.id, sum(me.price) FROM praha_sushi.orders ord 
   inner join praha_sushi.order_menus ord_me on ord.id = ord_me.order_id
   inner join praha_sushi.menus me on me.id = ord_me.menu_id group by ord.id;
 
-お客さんの来店回数のランキング
-select ord.customer_id, cus.name, count(*) FROM praha_sushi.orders ord 
+特定の期間内（今回は一ヶ月間）のお客さんの注文回数のランキング
+SELECT ord.customer_id, cus.name, count(*) FROM praha_sushi.orders ord 
   inner join praha_sushi.customers cus on ord.customer_id = cus.id 
+  WHERE ord.created_at BETWEEN '2022-11-01 00:00:00' AND '2022-11-30 23:59:59'
   group by ord.customer_id order by count(*) desc;
 
+各ジャンル毎の売り上げ高
+SELECT gen.name, sum(me.price) as "合計" FROM praha_sushi.orders ord 
+  inner join praha_sushi.order_menus ord_me on ord.id = ord_me.order_id
+  inner join praha_sushi.menus me on me.id = ord_me.menu_id 
+  inner join praha_sushi.genres gen on me.genre_id = gen.id 
+  group by me.genre_id order by sum(me.price) desc;
+
+支払いが済んでいないお客さん一覧
+SELECT cus.name, cus.phone FROM praha_sushi.orders ord 
+  inner join praha_sushi.customers cus on ord.customer_id = cus.id
+  where ord.is_paid = 0
+
+docker の参考 https://qiita.com/moaikids/items/f7c0db2c98425094ef10
+SQL文(CREATE DATABASE)の参考 https://qiita.com/ryosuketter/items/713c7046314ecdf1a4a9
+csvファイルデータのインポートの参考 https://taiga.hatenadiary.com/entry/2018/02/11/181715
+SQL文（LOAD DATA LOCAL INFILE）の参考 https://agohack.com/import-csv-files-load-data-local-infile/
+シェルスクリプト実行時の権限エラーの参考 https://qiita.com/kiririri/items/81a828befc54e188d776
+
+mysqlを使用するときは DBモデリング1 を current directory にした状態で docker-compose up をする
+※ docker start でも良いが、mysql と phpmyadmin が別コンテナなので、両方起動する必要がある
+phpmyadminのurlは localhost:8080
