@@ -23,15 +23,36 @@ https://gyazo.com/580d4cc6a70f85d33f8c884757cccd66
 
 #課題3
 条件
-1. takeoutとeat inで同じシステム（テーブル）を利用することになった場合
-2. 大カテゴリー、小カテゴリー、メニュー自体に変更があった場合
-https://gyazo.com/0e285a9262a8d9d02ad0b95238ae0440
+1. 消費税改正が起きた場合
+2. 大カテゴリー、小カテゴリー、メニュー自体などに変更があった場合
+https://gyazo.com/dce84e05ffdfc6c69129635154882ba4
+
+トリオの条件含む
+追加条件
+1. 複数店舗があった場合
+2. 持ち帰れない商品と持ち変えられる商品を分けて表示したい場合
+3. 顧客がネットで注文できるようにする場合（注文日時と受け渡し日時、注文の変更やキャンセル、論理削除）
+https://gyazo.com/faf58f7a334ca2b0e1b35ade76810d62
 
 #課題4
-お客さんが会計をする際の最終的な支払金額
-SELECT ord.id, sum(me.price) FROM praha_sushi.orders ord 
+お客さんが会計をする際の最終的な支払金額（税抜き）
+SELECT ord.id, sum(me.price * ord_me.count) as "税抜き合計" FROM praha_sushi.orders ord 
   inner join praha_sushi.order_menus ord_me on ord.id = ord_me.order_id
   inner join praha_sushi.menus me on me.id = ord_me.menu_id group by ord.id;
+
+お客さんが会計をする際の最終的な支払金額（税込）
+SELECT ord.id, FLOOR(sum(me.price * ord_me.count)*tax.rate) as "税込合計" FROM praha_sushi.orders ord 
+  inner join praha_sushi.taxes tax on ord.tax_id = tax.id
+  inner join praha_sushi.order_menus ord_me on ord.id = ord_me.order_id
+  inner join praha_sushi.menus me on me.id = ord_me.menu_id group by ord.id;
+
+合計皿数
+SELECT ord.id, sum(ord_me.count) as "皿数合計" FROM praha_sushi.orders ord 
+  inner join praha_sushi.order_menus ord_me on ord.id = ord_me.order_id
+  inner join praha_sushi.menus me on me.id = ord_me.menu_id 
+  inner join praha_sushi.genres gen on me.genre_id = gen.id 
+  inner join praha_sushi.categories cat on cat.id = me.category_id
+  where cat.id = 2 group by ord.id;
 
 特定の期間内（今回は一ヶ月間）のお客さんの注文回数のランキング
 SELECT ord.customer_id, cus.name, count(*) FROM praha_sushi.orders ord 
@@ -39,12 +60,12 @@ SELECT ord.customer_id, cus.name, count(*) FROM praha_sushi.orders ord
   WHERE ord.created_at BETWEEN '2022-11-01 00:00:00' AND '2022-11-30 23:59:59'
   group by ord.customer_id order by count(*) desc;
 
-各ジャンル毎の売り上げ高
-SELECT gen.name, sum(me.price) as "合計" FROM praha_sushi.orders ord 
+各ジャンル毎の売上高（税抜き）
+SELECT gen.name, sum(me.price * ord_me.count) as "売上高（税抜き）" FROM praha_sushi.orders ord 
   inner join praha_sushi.order_menus ord_me on ord.id = ord_me.order_id
   inner join praha_sushi.menus me on me.id = ord_me.menu_id 
   inner join praha_sushi.genres gen on me.genre_id = gen.id 
-  group by me.genre_id order by sum(me.price) desc;
+  group by me.genre_id order by sum(me.price * ord_me.count) desc;
 
 支払いが済んでいないお客さん一覧
 SELECT cus.name, cus.phone FROM praha_sushi.orders ord 
@@ -57,6 +78,7 @@ csvファイルデータのインポートの参考 https://taiga.hatenadiary.co
 SQL文（LOAD DATA LOCAL INFILE）の参考 https://agohack.com/import-csv-files-load-data-local-infile/
 シェルスクリプト実行時の権限エラーの参考 https://qiita.com/kiririri/items/81a828befc54e188d776
 
-mysqlを使用するときは DBモデリング1 を current directory にした状態で docker-compose up をする
+mysqlを使用するときは DBモデリング1 を current directory にした状態で docker-compose build --no-cache && docker-compose up をする
+※ サンプルデータを入れ直したいときはdataの中身を削除してから
 ※ docker start でも良いが、mysql と phpmyadmin が別コンテナなので、両方起動する必要がある
 phpmyadminのurlは localhost:8080
