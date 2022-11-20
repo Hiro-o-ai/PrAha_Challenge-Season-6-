@@ -32,51 +32,53 @@ https://gyazo.com/dce84e05ffdfc6c69129635154882ba4
 1. 複数店舗があった場合
 2. 持ち帰れない商品と持ち変えられる商品を分けて表示したい場合
 3. 顧客がネットで注文できるようにする場合（注文日時と受け渡し日時、注文の変更やキャンセル、論理削除）
-https://gyazo.com/faf58f7a334ca2b0e1b35ade76810d62
+https://gyazo.com/66a9a3222ecd78690890fca9130f266b
 
 #課題4
 お客さんが会計をする際の最終的な支払金額（税抜き）
-SELECT ord.id, sum(me.price * ord_me.count) as "税抜き合計" FROM praha_sushi.orders ord 
-  inner join praha_sushi.order_menus ord_me on ord.id = ord_me.order_id
-  inner join praha_sushi.menus me on me.id = ord_me.menu_id group by ord.id;
+SELECT order_id, sum(price * ordet_menu_quantity) as "税抜き合計" FROM praha_sushi.orders 
+  inner join praha_sushi.order_menus Using(order_id)
+  inner join praha_sushi.menus Using(menu_id) group by order_id;
 
 お客さんが会計をする際の最終的な支払金額（税込）
-SELECT ord.id, FLOOR(sum(me.price * ord_me.count)*tax.rate) as "税込合計" FROM praha_sushi.orders ord 
-  inner join praha_sushi.taxes tax on ord.tax_id = tax.id
-  inner join praha_sushi.order_menus ord_me on ord.id = ord_me.order_id
-  inner join praha_sushi.menus me on me.id = ord_me.menu_id group by ord.id;
+SELECT order_id, FLOOR(sum(price * ordet_menu_quantity)*tax_rate) as "税込合計" FROM praha_sushi.orders
+  inner join praha_sushi.taxes Using(tax_id)
+  inner join praha_sushi.order_menus Using(order_id)
+  inner join praha_sushi.menus Using(menu_id) group by order_id;
 
 合計皿数
-SELECT ord.id, sum(ord_me.count) as "皿数合計" FROM praha_sushi.orders ord 
-  inner join praha_sushi.order_menus ord_me on ord.id = ord_me.order_id
-  inner join praha_sushi.menus me on me.id = ord_me.menu_id 
-  inner join praha_sushi.genres gen on me.genre_id = gen.id 
-  inner join praha_sushi.categories cat on cat.id = me.category_id
-  where cat.id = 2 group by ord.id;
+SELECT order_id, sum(ordet_menu_quantity) as "皿数合計" FROM praha_sushi.orders
+  inner join praha_sushi.order_menus Using(order_id)
+  inner join praha_sushi.menus Using(menu_id)
+  inner join praha_sushi.genres Using(genre_id) 
+  inner join praha_sushi.categories Using(category_id)
+  where category_id = 2 group by order_id;
 
 特定の期間内（今回は一ヶ月間）のお客さんの注文回数のランキング
-SELECT ord.customer_id, cus.name, count(*) FROM praha_sushi.orders ord 
-  inner join praha_sushi.customers cus on ord.customer_id = cus.id 
-  WHERE ord.created_at BETWEEN '2022-11-01 00:00:00' AND '2022-11-30 23:59:59'
-  group by ord.customer_id order by count(*) desc;
+SELECT customer_id, customer_name, count(*) FROM praha_sushi.orders ord 
+  inner join praha_sushi.customers Using(customer_id)
+  WHERE ordered_at BETWEEN '2022-11-01 00:00:00' AND '2022-11-30 23:59:59'
+  group by customer_id order by count(*) desc;
 
 各ジャンル毎の売上高（税抜き）
-SELECT gen.name, sum(me.price * ord_me.count) as "売上高（税抜き）" FROM praha_sushi.orders ord 
-  inner join praha_sushi.order_menus ord_me on ord.id = ord_me.order_id
-  inner join praha_sushi.menus me on me.id = ord_me.menu_id 
-  inner join praha_sushi.genres gen on me.genre_id = gen.id 
-  group by me.genre_id order by sum(me.price * ord_me.count) desc;
+SELECT genre_name, sum(price * ordet_menu_quantity) as "売上高（税抜き）" FROM praha_sushi.orders
+  inner join praha_sushi.order_menus Using(order_id)
+  inner join praha_sushi.menus Using(menu_id)
+  inner join praha_sushi.genres  Using(genre_id) 
+  group by genre_id order by sum(price * ordet_menu_quantity) desc;
 
 支払いが済んでいないお客さん一覧
-SELECT cus.name, cus.phone FROM praha_sushi.orders ord 
-  inner join praha_sushi.customers cus on ord.customer_id = cus.id
-  where ord.is_paid = 0
+SELECT customer_name, customer_phone FROM praha_sushi.orders
+  inner join praha_sushi.customers Using(customer_id)
+  where paid_exists = 0
 
 docker の参考 https://qiita.com/moaikids/items/f7c0db2c98425094ef10
 SQL文(CREATE DATABASE)の参考 https://qiita.com/ryosuketter/items/713c7046314ecdf1a4a9
 csvファイルデータのインポートの参考 https://taiga.hatenadiary.com/entry/2018/02/11/181715
 SQL文（LOAD DATA LOCAL INFILE）の参考 https://agohack.com/import-csv-files-load-data-local-infile/
+SQL文（LOAD DATA LOCAL INFILE）の参考 https://yoku0825.blogspot.com/2018/02/load-data-infile.html
 シェルスクリプト実行時の権限エラーの参考 https://qiita.com/kiririri/items/81a828befc54e188d776
+外部キー制約に関しての参考 https://zenn.dev/praha/articles/2667cbb1ab7233
 
 mysqlを使用するときは DBモデリング1 を current directory にした状態で docker-compose build --no-cache && docker-compose up をする
 ※ サンプルデータを入れ直したいときはdataの中身を削除してから
