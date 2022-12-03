@@ -1,0 +1,17 @@
+version: '3'
+services:
+  mysql:
+    build: ./mysql
+    container_name: mysql-container
+    env_file:
+      - ./.env_mysql
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+      - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+    ports:
+      - 3306:3306
+  phpmyadmin:
+    build: ./phpmyadmin
+    ports:
+      - 127.0.0.1:8080:80
