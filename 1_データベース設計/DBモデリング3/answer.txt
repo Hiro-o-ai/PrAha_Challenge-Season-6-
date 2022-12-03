@@ -1,0 +1,10 @@
+課題1
+https://gyazo.com/2316bdbc062cbd1acd2697d0998044b8
+
+課題2
+https://gyazo.com/b14bf17720d7f9d5417f77b633ad822c
+directoriesテーブルのdocument_positionsはドキュメントの順番をJSON形式の配列として保持
+
+food for thought
+airtableのリクエストbody
+https://gyazo.com/5ddba9b66527575ef6fdf7ca8bdeea83

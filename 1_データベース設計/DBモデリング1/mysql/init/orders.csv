@@ -1,4 +1,4 @@
-order_id,customer_id,tax_id,shop_id,paid_exists,cancel_exists
+order_id,customer_id,tax_id,shop_id,is_paid,is_cancel
 1,1,1,1,1,0
 2,1,1,2,0,0
 3,2,1,3,0,0

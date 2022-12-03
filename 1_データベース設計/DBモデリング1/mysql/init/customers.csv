@@ -1,4 +1,4 @@
-customer_id,customer_name,customer_phone,customer_email,customer_address,show_customer
-1,岡島,090-1234-1234,okajima@test.jp,神奈川,1
-2,佐々木,090-1234-5678,sasaki@test.jp,東京,1
-3,吉村,090-56789123,yoshimura@test.jp,栃木,1
+customer_id,customer_pw,customer_name,customer_phone,customer_email,customer_address,withdrawn
+1,test,岡島,090-1234-1234,okajima@test.jp,神奈川,1
+2,1fljsafld,佐々木,090-1234-5678,sasaki@test.jp,東京,1
+3,tset,吉村,090-56789123,yoshimura@test.jp,栃木,1
